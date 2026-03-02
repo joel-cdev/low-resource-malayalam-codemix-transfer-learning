@@ -1,108 +1,107 @@
-****Low-Resource Malayalam–English Code-Mixed Transfer Learning****
+# Low-Resource Malayalam–English Code-Mixed Transfer Learning
 
-This repository contains the full implementation of our transfer learning pipeline for low-resource Malayalam–English code-mixed sentiment analysis.
+This project evaluates transfer learning strategies for low-resource Malayalam–English code-mixed sentiment classification using multilingual transformer models.
 
-The project investigates how multilingual Large Language Models (LLMs) can be adapted to linguistically complex, code-mixed data using:
+The repository contains the full implementation of our pipeline exploring:
 
-Full Fine-Tuning
+- Full Fine-Tuning
+- Parameter-Efficient Fine-Tuning (LoRA)
 
-Parameter-Efficient Fine-Tuning (LoRA)
+---
 
-**Dataset**
+## Dataset
 
 Malayalam–English code-mixed YouTube comments (FIRE 2020 – Dravidian CodeMix).
 
-Original dataset includes five sentiment classes:
+The original dataset includes five sentiment classes:
 
-Positive
+- Positive
+- Negative
+- Mixed_feelings
+- unknown_state
+- not-malayalam
 
-Negative
+The original train/dev/test splits were preserved.
 
-Mixed_feelings
+For controlled comparison between full fine-tuning and LoRA, the task was reformulated as **binary sentiment classification (Positive vs Negative)**.
 
-unknown_state
+Ambiguous or non-polar classes (`unknown_state`, `not-malayalam`, `Mixed_feelings`) were excluded during model training to reduce label noise and improve interpretability of evaluation metrics.
 
-not-malayalam
+---
 
-Original train/dev/test splits were preserved.
+## Project Components
 
-For fine-tuning comparison, the task was reformulated as binary sentiment classification (Positive vs Negative) to enable controlled evaluation between full fine-tuning and LoRA.
+### 1. Data & Preprocessing
 
-Ambiguous or non-polar classes (unknown_state, not-malayalam, Mixed_feelings) were excluded during training.**
+- Removed null rows and duplicates
+- Applied minimal normalization (URLs, mentions, whitespace)
+- Preserved code-mixing and Malayalam script
+- Retained original 5-class structure
+- Encoded labels to numeric IDs
+- Computed English-token ratio as proxy for code-mixing intensity
+- Computed balanced class weights to address class imbalance
 
-**Project Components**
+**Artifacts:**
 
-**1. Data & Preprocessing**
+- `preprocessing/Project2_preprocessing_mal_en.ipynb`
+- `preprocessing/label_map.json`
+- `preprocessing/class_weights.json`
 
-Removed null rows and duplicates
+---
 
-Minimal normalization (URLs, mentions, whitespace)
+### 2. Model Design & Full Fine-Tuning
 
-Preserved code-mixing and Malayalam script
+- Base multilingual model selection (mT5)
+- Binary sentiment classification setup
+- Fine-tuning using HuggingFace Transformers
 
-Retained original 5-class sentiment structure
+**File:**
 
-Encoded labels to numeric IDs
+- `finetuning/02_finetuning_csci316_project2_FIXED.ipynb`
 
-Computed English-token ratio as proxy for code-mixing intensity
+---
 
-Computed balanced class weights for handling class imbalance
+### 3. PEFT / LoRA
 
-Artifacts:
+- LoRA-based parameter-efficient fine-tuning
+- Reduced trainable parameter comparison
+- Training efficiency analysis
 
-preprocessing/Project2_preprocessing_mal_en.ipynb
+*(To be expanded)*
 
-preprocessing/label_map.json
+---
 
-preprocessing/class_weights.json
+### 4. Evaluation & Analysis
 
-**2. Model Design & Full Fine-Tuning**
+- Accuracy
+- Macro-F1 score
+- Confusion Matrix
+- Code-mix robustness evaluation
 
-Base multilingual model selection (mT5)
+*(To be expanded)*
 
-Binary sentiment classification setup
+---
 
-Fine-tuning using HuggingFace Transformers
+### 5. Deployment
 
-Files:
+- Docker containerization
+- Inference API
+- Reproducibility instructions
 
-finetuning/02_finetuning_csci316_project2_FIXED.ipynb
+*(To be expanded)*
 
-**3. PEFT / LoRA**
+---
 
-LoRA-based parameter-efficient fine-tuning
+## Trained Model Weights
 
-Reduced trainable parameter comparison
+Due to GitHub file size limitations, the trained model weights (`model.safetensors`, ~1.12GB) are stored in the shared Google Drive folder:
 
-Efficiency analysis
-
-(To be expanded)
-
-**4. Evaluation & Analysis**
-
-Accuracy
-
-Macro-F1 score
-
-Confusion Matrix
-
-Code-mix robustness analysis
-
-(To be expanded)
-
-**5. Deployment**
-
-Docker containerization
-
-Inference API
-
-Reproducibility instructions
-
-(To be expanded)
-
-**Trained Model Weights**
-
-Due to GitHub file size limitations, the trained model weights (model.safetensors, ~1.12GB) are stored in the shared Google Drive folder:
-
-Google Drive Link:
+**Google Drive Link:**  
 https://drive.google.com/drive/folders/1VnzX-YACtcRdCc6vWtc99b9VVEs0V95W?usp=sharing
+
+To load the trained model after downloading the `trained_model_mt5` folder:
+
+```python
+from transformers import MT5ForConditionalGeneration
+
+model = MT5ForConditionalGeneration.from_pretrained("path_to_trained_model_folder")
