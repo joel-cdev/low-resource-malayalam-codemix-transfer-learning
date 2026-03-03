@@ -57,7 +57,7 @@ Ambiguous or non-polar classes (`unknown_state`, `not-malayalam`, `Mixed_feeling
 
 **File:**
 
-- `finetuning/02_finetuning_csci316_project2_FIXED.ipynb`
+- `finetuning/02_finetuning_V1.ipynb`
 
 ---
 
