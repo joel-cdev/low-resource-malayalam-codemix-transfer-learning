@@ -1,16 +1,43 @@
 # CSCI316 Project 2 — Multilingual Sentiment Analysis with mT5
 
 ## Overview
-This project fine-tunes a multilingual transformer model (mT5-small) to perform **binary sentiment analysis** (Positive / Negative) on a Malayalam-English dataset. The model learns to classify text as either positive or negative sentiment, handling code-switched and multilingual input.
+This project fine-tunes a multilingual transformer model (mT5-small) to perform **binary sentiment analysis** (Positive / Negative) on a Malayalam-English code-mixed dataset. The model learns to classify text as either positive or negative sentiment, handling code-switched and multilingual input.
+
+The current version in use is **V2** (`03_full_finetuning_V2_the_final_baseline.ipynb`), which is the final baseline. V1 (`02_finetuning_V1.ipynb`) was an earlier experiment and has since been superseded.
+
+---
+
+## Notebooks
+
+| File | Description |
+|------|-------------|
+| `03_full_finetuning_V2_the_final_baseline.ipynb` | **Current version — final baseline** |
+| `02_finetuning_V1.ipynb` | Old experiment — superseded by V2 |
+
+---
+
+## What Changed from V1 to V2
+
+| Change | V1 | V2 |
+|--------|----|----|
+| Class balancing | None (raw imbalanced data: 2018 pos / 548 neg) | Oversampling minority class → 2018 pos / 2018 neg (4036 total) |
+| FP16 | `fp16=torch.cuda.is_available()` | `fp16=False` (disabled for training stability) |
+| GPU placement | Implicit | Explicit `model.to("cuda")` |
+| Evaluation metrics | Accuracy + weighted F1 only | Accuracy, weighted F1, **macro F1**, classification report, confusion matrix |
+| Saved model path | `mt5_finetuned/` | `mt5_finetuned_updated/` |
+| Test Accuracy | 80.34% | **84.62%** |
+| Test Weighted F1 | 71.58% | **81.12%** |
+
+The most impactful change was **oversampling the negative class** to address class imbalance, which dramatically improved both accuracy and F1.
 
 ---
 
 ## Dataset
-The dataset consists of Malayalam/English social media text, pre-cleaned and split into three files stored in Google Drive:
+The dataset consists of Malayalam/English social media text (FIRE 2020 – Dravidian CodeMix), pre-cleaned and split into three files stored in Google Drive:
 
 | File | Split | Size (after filtering) |
 |------|-------|------------------------|
-| `clean_train.csv` | Training | 2,566 examples |
+| `clean_train.csv` | Training | 2,566 examples (raw); 4,036 after oversampling |
 | `clean_dev.csv` | Validation | 275 examples |
 | `clean_test.csv` | Test | 702 examples |
 
@@ -31,38 +58,44 @@ The task is framed as **text generation**: given the input `"sentiment: <text>"`
 
 ---
 
-## Project Pipeline
+## Project Pipeline (V2)
 
 ### 1. Data Loading & Filtering
 - Load train/dev/test CSVs from Google Drive
 - Filter to keep only Positive and Negative categories
 
-### 2. Format Conversion
+### 2. Class Balancing (new in V2)
+- Group training examples by label
+- Oversample the negative class to match the positive class count
+- Result: balanced training set of 4,036 examples (2,018 per class)
+- Dev and test sets are **not** oversampled
+
+### 3. Format Conversion
 - Convert each row into input/output pairs:
   - Input: `"sentiment: <text>"`
   - Target: `"positive"` or `"negative"`
 
-### 3. Tokenization
+### 4. Tokenization
 - Tokenize inputs (max length 64 tokens)
 - Tokenize labels (max length 8 tokens)
 - Replace padding tokens in labels with `-100` so they are ignored during loss calculation
 
-### 4. Training
+### 5. Training
 - Fine-tune mT5-small using HuggingFace `Seq2SeqTrainer`
 - Evaluate after every epoch on the dev set
-- Save the best model checkpoint
+- Save the best model checkpoint (based on weighted F1)
 
-### 5. Evaluation
+### 6. Evaluation
 - Evaluate on dev set and test set
-- Metrics: Accuracy and Weighted F1 Score
+- Metrics: Accuracy, Weighted F1, Macro F1, classification report, confusion matrix
 - Decode generated outputs and normalize before comparing to gold labels
 
-### 6. Saving
-- Model and tokenizer saved to Google Drive: `MyDrive/mt5_finetuned/`
+### 7. Saving
+- Model and tokenizer saved to Google Drive: `MyDrive/mt5_finetuned_updated/`
 
 ---
 
-## Training Configuration
+## Training Configuration (V2)
 
 | Hyperparameter | Value |
 |----------------|-------|
@@ -75,64 +108,64 @@ The task is framed as **text generation**: given the input `"sentiment: <text>"`
 | Max Input Length | 64 tokens |
 | Max Label Length | 8 tokens |
 | Evaluation Strategy | Every epoch |
-| FP16 (mixed precision) | Yes (GPU) |
+| Best model selection | Max weighted F1 |
+| FP16 (mixed precision) | No (disabled for stability) |
 
 ---
 
-## Results
+## Results (V2 — Final Baseline)
 
 ### Training Progress
 | Epoch | Training Loss | Validation Loss | Accuracy | F1 Weighted |
 |-------|--------------|-----------------|----------|-------------|
-| 1 | 2.9700 | 1.1303 | 0.8145 | 0.7313 |
-| 2 | 1.0073 | 0.5275 | 0.8145 | 0.7313 |
-| 3 | 0.6552 | 0.3519 | 0.8145 | 0.7313 |
+| 1 | ~1.57 | 0.2013 | 0.8145 | 0.7313 |
+| 2 | ~0.52 | 0.1668 | 0.8655 | 0.8428 |
+| 3 | ~0.37 | 0.1988 | 0.8255 | 0.8212 |
+
+Best checkpoint selected at **epoch 2** (highest weighted F1).
 
 ### Final Scores
 
-| Split | Accuracy | F1 Weighted |
-|-------|----------|-------------|
-| Dev | **81.45%** | **73.13%** |
-| Test | **80.34%** | **71.58%** |
+| Split | Accuracy | F1 Weighted | F1 Macro |
+|-------|----------|-------------|----------|
+| Dev | **86.55%** | **84.28%** | — |
+| Test | **84.62%** | **81.12%** | **65.6%** |
 
 ---
 
 ## Key Observations
-- Training loss dropped significantly from **2.97 → 0.65** across 3 epochs, showing the model learned effectively
-- Accuracy stabilized after epoch 1, suggesting the model converged quickly on this dataset
-- The model shows a slight bias toward predicting "positive" — likely due to class imbalance in the training data
-- The gap between Accuracy (81%) and F1 (73%) reflects this imbalance
+- Oversampling the minority (negative) class was the single biggest improvement, pushing test weighted F1 from ~72% to ~81%
+- FP16 was disabled after observing instability; training on GPU without mixed precision remained fast enough
+- Macro F1 (65.6%) vs Weighted F1 (81.1%) gap reflects the still-challenging minority class
+- Best checkpoint at epoch 2 — epoch 3 slightly overfit on the balanced training set
 
 ---
 
 ## File Structure
 ```
-Project2_preprocessing_mal_en/
-├── clean_train.csv          # Training data
-├── clean_dev.csv            # Validation data
-├── clean_test.csv           # Test data
-├── class_weights.json       # Class weights
-├── label_map.json           # Label mapping
-└── mt5_finetuned/           # Saved fine-tuned model
+finetuning/
+├── 03_full_finetuning_V2_the_final_baseline.ipynb   # Current version
+├── 02_finetuning_V1.ipynb                            # Old experiment
+└── README.md
+
+Saved model (Google Drive):
+└── mt5_finetuned_updated/
     ├── config.json
     ├── model.safetensors
     ├── tokenizer_config.json
     ├── spiece.model
     └── special_tokens_map.json
-
-Notebook:
-└── 02_finetuning_csci316_project2_FIXED.ipynb
 ```
 
 ---
 
 ## How to Run
 
-1. Open the notebook in Google Colab with a GPU runtime (T4 or better)
+1. Open `03_full_finetuning_V2_the_final_baseline.ipynb` in Google Colab with a GPU runtime (T4 or better)
 2. Mount Google Drive when prompted
 3. Ensure your CSV files are in `MyDrive/Project2_preprocessing_mal_en/`
 4. Run all cells in order
-5. Training takes approximately **1.5 hours** on a T4 GPU for 3 epochs
+5. Training takes approximately **7–8 minutes** on a T4 GPU for 3 epochs
 
 ---
 
@@ -144,6 +177,7 @@ scikit-learn
 torch
 pandas
 numpy
+matplotlib
 ```
 All are pre-installed in Google Colab.
 
@@ -152,4 +186,4 @@ All are pre-installed in Google Colab.
 ## Notes
 - The `pin_memory` warning that appears during training is harmless and can be ignored
 - If Google Drive shows as read-only, re-run the `drive.mount()` cell and try again
-- The model is saved locally to `/content/mt5_finetuned/` first, then copied to Drive
+- The model is saved locally to `/content/mt5_finetuned_updated/` first, then copied to Drive
