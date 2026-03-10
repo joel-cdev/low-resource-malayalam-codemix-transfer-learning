@@ -85,15 +85,31 @@ Both models were evaluated on the same held-out test set (702 examples) using ac
 
 Full fine-tuning outperforms LoRA across all metrics, with the largest gap in macro F1 — reflecting that full fine-tuning handles the minority (negative) class better.
 
-**Code-Mix Robustness Score (CMRS)** was computed for the LoRA model by splitting the test set into low and high code-mix buckets based on English-word ratio:
+**Code-Mix Robustness Score (CMRS)** was computed to evaluate how sensitive the LoRA model is to varying levels of Malayalam–English code-mixing. The test set was divided into two subsets based on the English-word ratio, defined as the proportion of tokens written in the Latin alphabet within each comment.
+
+Comments were grouped as follows:
+
+- **Low code-mix:** English ratio < 30% (predominantly Malayalam text)
+- **High code-mix:** English ratio ≥ 30% (significant English mixing)
+
+The model’s weighted F1 score was then calculated separately for each subset:
 
 | Subset | F1 |
 |--------|----|
 | Low code-mix (< 30% English) | 0.889 |
 | High code-mix (≥ 30% English) | 0.682 |
-| CMRS | **0.793** |
 
-A CMRS of 0.79 indicates moderate robustness — the model performs noticeably better on near-pure Malayalam text than on heavily code-mixed text.
+The Code-Mix Robustness Score (CMRS) is defined as:
+
+CMRS = 1 − |F1_high − F1_low|
+
+Using the measured values:
+
+CMRS = 1 − |0.889 − 0.682| ≈ 0.793
+
+A CMRS of 0.79 indicates moderate robustness to code-mixing. The LoRA model performs substantially better on comments that are primarily Malayalam, while its performance decreases when the proportion of English words increases. This suggests that the parameter-efficient fine-tuning approach struggles to adapt fully to heavily code-mixed inputs, likely due to limited training data and restricted parameter updates in the LoRA adapters.
+
+Overall, this result supports the earlier quantitative findings, where the LoRA model exhibited strong bias toward the majority class and reduced ability to capture complex linguistic patterns present in highly code-mixed social media text.
 
 ---
 
