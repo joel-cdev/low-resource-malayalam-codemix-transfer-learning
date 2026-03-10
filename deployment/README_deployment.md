@@ -103,7 +103,7 @@ POST /predict/batch
     "Amazing movie, super acting!",
     "Worst movie ever. Waste of time.",
     "Nalla padam, must watch!",
-    "Adipoli film, superb performance!"
+    "Very bad film, not recommended"
   ]
 }
 ```
