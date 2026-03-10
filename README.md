@@ -57,7 +57,7 @@ Ambiguous or non-polar classes (`unknown_state`, `not-malayalam`, `Mixed_feeling
 
 **File:**
 
-- `finetuning/02_finetuning_V1.ipynb`
+- `finetuning/03_full_finetuning_v2_the_final_baseline.ipynb`
 
 ---
 
@@ -67,20 +67,33 @@ Ambiguous or non-polar classes (`unknown_state`, `not-malayalam`, `Mixed_feeling
 - Reduced trainable parameter comparison
 - Training efficiency analysis
 
-**File:**
+**Files:**
 
-- `lora/03_lora_csci316_project2_malayalam_finalversion.ipynb`
+- `lora/05_lora_v2_final.ipynb` — final LoRA model
+- `lora/05_lora_v2_cmrs_evaluation.ipynb` — final LoRA + CMRS evaluation
 
 ---
 
 ### 4. Evaluation & Analysis
 
-- Accuracy
-- Macro-F1 score
-- Confusion Matrix
-- Code-mix robustness evaluation
+Both models were evaluated on the same held-out test set (702 examples) using accuracy, weighted F1, and macro F1.
 
-*(To be expanded)*
+| Model | Test Accuracy | Weighted F1 | Macro F1 |
+|-------|--------------|-------------|----------|
+| Full Fine-Tuning (V2) | **84.62%** | **81.12%** | **65.6%** |
+| LoRA (V2) | 80.34% | 71.58% | 44.55% |
+
+Full fine-tuning outperforms LoRA across all metrics, with the largest gap in macro F1 — reflecting that full fine-tuning handles the minority (negative) class better.
+
+**Code-Mix Robustness Score (CMRS)** was computed for the LoRA model by splitting the test set into low and high code-mix buckets based on English-word ratio:
+
+| Subset | F1 |
+|--------|----|
+| Low code-mix (< 30% English) | 0.889 |
+| High code-mix (≥ 30% English) | 0.682 |
+| CMRS | **0.793** |
+
+A CMRS of 0.79 indicates moderate robustness — the model performs noticeably better on near-pure Malayalam text than on heavily code-mixed text.
 
 ---
 

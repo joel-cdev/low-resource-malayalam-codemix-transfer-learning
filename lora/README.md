@@ -5,17 +5,15 @@ This project applies parameter-efficient fine-tuning using LoRA to a multilingua
 
 Unlike the full fine-tuning baseline, this version uses LoRA adapters, which update only a small number of additional parameters while keeping the original model weights frozen. This reduces training cost while still allowing the model to adapt to the sentiment classification task.
 
-The current version in use is the final LoRA implementation (03_lora_csci316_project2_malayalam_finalversion.ipynb).
-An earlier experiment (03_lora_csci316_project2_malayalam_version4.ipynb) was used during development.
-
 ---
 
 ## Notebooks
 
 | File | Description |
 |------|-------------|
-| `03_lora_csci316_project2_malayalam_finalversion.ipynb` | **Current version — LoRA implementation** |
-| `03_lora_csci316_project2_malayalam_version4.ipynb` | Earlier LoRA experiment |
+| `05_lora_v2_final.ipynb` | **Current version — final LoRA implementation** |
+| `05_lora_v2_cmrs_evaluation.ipynb` | Final LoRA + Code-Mix Robustness Score (CMRS) evaluation |
+| `04_lora_v1_experiment.ipynb` | Earlier LoRA experiment — superseded by V2 |
 
 
 ---
@@ -133,8 +131,9 @@ Best checkpoint selected at **epoch 2**.
 ## File Structure
 ```
 lora/
-├── 03_lora_csci316_project2_malayalam_finalversion.ipynb # Current version
-├── 03_lora_csci316_project2_malayalam_version4.ipynb                 # Old experiment
+├── 05_lora_v2_final.ipynb             # Current version — final LoRA
+├── 05_lora_v2_cmrs_evaluation.ipynb   # Final LoRA + CMRS evaluation
+├── 04_lora_v1_experiment.ipynb        # Earlier experiment
 └── README.md
 
 Saved model (Google Drive):
@@ -151,7 +150,7 @@ Saved model (Google Drive):
 
 ## How to Run
 
-1. Open `03_lora_csci316_project2_malayalam_finalversion.ipynb` in Google Colab with a GPU runtime (T4 or better)
+1. Open `05_lora_v2_final.ipynb` in Google Colab with a GPU runtime (T4 or better)
 2. Mount Google Drive when prompted
 3. Ensure your CSV files are in `MyDrive/Project2_preprocessing_mal_en/`
 4. Run all cells in order

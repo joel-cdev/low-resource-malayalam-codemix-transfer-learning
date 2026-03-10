@@ -11,8 +11,8 @@ The current version in use is **V2** (`03_full_finetuning_V2_the_final_baseline.
 
 | File | Description |
 |------|-------------|
-| `03_full_finetuning_V2_the_final_baseline.ipynb` | **Current version — final baseline** |
-| `02_finetuning_V1.ipynb` | Old experiment — superseded by V2 |
+| `03_full_finetuning_v2_the_final_baseline.ipynb` | **Current version — final baseline** |
+| `02_finetuning_v1.ipynb` | Old experiment — superseded by V2 |
 
 ---
 
@@ -144,8 +144,8 @@ Best checkpoint selected at **epoch 2** (highest weighted F1).
 ## File Structure
 ```
 finetuning/
-├── 03_full_finetuning_V2_the_final_baseline.ipynb   # Current version
-├── 02_finetuning_V1.ipynb                            # Old experiment
+├── 03_full_finetuning_v2_the_final_baseline.ipynb   # Current version
+├── 02_finetuning_v1.ipynb                            # Old experiment
 └── README.md
 
 Saved model (Google Drive):
@@ -161,7 +161,7 @@ Saved model (Google Drive):
 
 ## How to Run
 
-1. Open `03_full_finetuning_V2_the_final_baseline.ipynb` in Google Colab with a GPU runtime (T4 or better)
+1. Open `03_full_finetuning_v2_the_final_baseline.ipynb` in Google Colab with a GPU runtime (T4 or better)
 2. Mount Google Drive when prompted
 3. Ensure your CSV files are in `MyDrive/Project2_preprocessing_mal_en/`
 4. Run all cells in order
