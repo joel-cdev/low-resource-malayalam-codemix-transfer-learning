@@ -84,11 +84,17 @@ Ambiguous or non-polar classes (`unknown_state`, `not-malayalam`, `Mixed_feeling
 
 ### 5. Deployment
 
-- Docker containerization
-- Inference API
-- Reproducibility instructions
+The fine-tuned model is served via a FastAPI REST API containerised with Docker.
 
-*(To be expanded)*
+```bash
+cd deployment
+docker build -t malayalam-sentiment-api .
+docker run -p 8000:8000 malayalam-sentiment-api
+```
+
+Swagger UI available at: http://localhost:8000/docs
+
+See `deployment/README_deployment.md` for full setup instructions.
 
 ---
 
@@ -105,3 +111,4 @@ To load the trained model after downloading the `trained_model_mt5` folder:
 from transformers import MT5ForConditionalGeneration
 
 model = MT5ForConditionalGeneration.from_pretrained("path_to_trained_model_folder")
+```

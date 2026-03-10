@@ -1,0 +1,6 @@
+# Never push the model weights to GitHub — too large and stored on Google Drive
+model/
+*.safetensors
+*.bin
+__pycache__/
+*.pyc
