@@ -67,7 +67,9 @@ Ambiguous or non-polar classes (`unknown_state`, `not-malayalam`, `Mixed_feeling
 - Reduced trainable parameter comparison
 - Training efficiency analysis
 
-*(To be expanded)*
+**File:**
+
+- `lora/03_lora_csci316_project2_malayalam_finalversion.ipynb`
 
 ---
 
